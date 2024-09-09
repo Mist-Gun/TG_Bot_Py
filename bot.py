@@ -4,7 +4,31 @@ from gpt import *
 from util import *
 
 # тут будем писать наш код :)
+async def start(update, context):
+  text = load_message("main")
+  await send_photo(update, context, "main")
+  await send_text(update, context, text)
+  
+async def hello(update, context):
+  await send_text(update, context, "*Привет*")
+  await send_text(update, context, "_Как дела?_")
+  await send_text(update, context, "Вы написали - " + update.message.text)
+  await send_photo(update, context, "awatar_main")
+  await send_text_buttons(update, context, "Запустить процесс?",{
+    "start":"Запустить",
+    "stop":"Остановить"
+  })
+  
 
+async def hello_button(update, context):
+  query = update.callback_query.data
+  if query == "start":
+    await send_text(update, context, "Процесс запущен")
+  else:
+    await send_text(update, context, "Процесс остановлен")
 
-app = ApplicationBuilder().token("telegram-token").build()
+app = ApplicationBuilder().token("6721687181:AAFfQ5GwARdROtJjOGOfypDR2BUQmhm14GE").build()
+app = add_handler(CommandHandler("start", start))
+app = add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
+app = add_handler(CallbackQueryHandler(hello_button))
 app.run_polling()
